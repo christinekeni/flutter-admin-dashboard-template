@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_admin_dashboard_template/features/users/user_not_found_page.dart';
 import 'package:go_router/go_router.dart';
 
-import 'features/dashboard/dashbord_page.dart';
+import 'features/dashboard/dashboard_page.dart';
 import 'features/users/dummy_users.dart';
 import 'features/users/user_page.dart';
 import 'features/users/users_page.dart';
