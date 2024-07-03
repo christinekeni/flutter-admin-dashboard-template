@@ -1,16 +1,26 @@
+import 'dart:io';
 import 'package:adaptive_theme/adaptive_theme.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_admin_dashboard_template/theme.dart';
 import 'package:flutter_web_plugins/url_strategy.dart';
 import 'package:responsive_framework/responsive_framework.dart';
-import 'firebase_options.dart';  // Import the generated options
+import 'firebase_options.dart';
 import 'router.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
+    options: kIsWeb || Platform.isAndroid
+        ? const FirebaseOptions(
+            apiKey: 'AIzaSyDS_2KmRHX2qsBp7rjK1S9u_p2FdqC675k',
+            appId: '1:493256316498:web:7c3fb1daa7ba252797318b',
+            messagingSenderId: '493256316498',
+            projectId: 'strathmover',
+            storageBucket: 'strathmover.appspot.com',
+          )
+        : null,
   );
   usePathUrlStrategy();
   runApp(const App());
@@ -19,7 +29,7 @@ void main() async {
 class App extends StatelessWidget {
   const App({super.key});
 
-  static const title = 'Flutter Admin Dashboard';
+  static const title = 'StrathMover';
 
   @override
   Widget build(BuildContext context) {

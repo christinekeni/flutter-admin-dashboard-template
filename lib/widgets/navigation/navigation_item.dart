@@ -3,6 +3,8 @@ import 'package:recase/recase.dart';
 
 enum NavigationItem {
   dashboard(iconData: Icons.dashboard_outlined),
+  trips(iconData: Icons.directions_bus),
+  routes(iconData: Icons.map),
   users(iconData: Icons.list_outlined),
   ;
 
@@ -10,3 +12,4 @@ enum NavigationItem {
   final IconData iconData;
   String get label => name.pascalCase;
 }
+

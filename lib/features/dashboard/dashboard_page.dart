@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_admin_dashboard_template/features/dashboard/inventory.dart';
+import 'package:flutter_admin_dashboard_template/models/user_model.dart';
 import 'package:gap/gap.dart';
 import 'package:intersperse/intersperse.dart';
 import 'package:responsive_framework/responsive_framework.dart';
@@ -11,14 +11,21 @@ import '../../widgets/widgets.dart';
 class DashBoardPage extends StatelessWidget {
   const DashBoardPage({super.key});
 
+  Future<Map<String, int>> fetchCounts() async {
+    final usersSnapshot = await FirebaseFirestore.instance.collection('Users').get();
+    final busesSnapshot = await FirebaseFirestore.instance.collection('buses').get();
+    final routesSnapshot = await FirebaseFirestore.instance.collection('routes').get();
+
+    return {
+      'totalUsers': usersSnapshot.size,
+      'totalBuses': busesSnapshot.size,
+      'totalRoutes': routesSnapshot.size,
+    };
+  }
+
   @override
   Widget build(BuildContext context) {
     final responsive = ResponsiveBreakpoints.of(context);
-    const summaryCards = [
-      SummaryCard(title: 'Total Sales', value: '\$125,000'),
-      SummaryCard(title: 'Total Users', value: '12,000'),
-      SummaryCard(title: 'KPI Progress Rate', value: '52.3%'),
-    ];
 
     return ContentView(
       child: Column(
@@ -26,18 +33,41 @@ class DashBoardPage extends StatelessWidget {
         children: [
           const PageHeader(
             title: 'Dashboard',
-            description: 'A summary of key data and insights on your project.',
+            description: 'A summary of key data.',
           ),
           const Gap(16),
-          if (responsive.isMobile)
-            ...summaryCards
-          else
-            Row(
-              children: summaryCards
-                  .map<Widget>((card) => Expanded(child: card))
-                  .intersperse(const Gap(16))
-                  .toList(),
-            ),
+          FutureBuilder<Map<String, int>>(
+            future: fetchCounts(),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Center(child: CircularProgressIndicator());
+              } else if (snapshot.hasError) {
+                return Center(child: Text('Error: ${snapshot.error}'));
+              } else if (!snapshot.hasData) {
+                return const Center(child: Text('No data available'));
+              }
+
+              final counts = snapshot.data!;
+              final summaryCards = [
+                SummaryCard(title: 'Total Users', value: counts['totalUsers'].toString()),
+                SummaryCard(title: 'Total Buses', value: counts['totalBuses'].toString()),
+                SummaryCard(title: 'Total Routes', value: counts['totalRoutes'].toString()),
+              ];
+
+              if (responsive.isMobile) {
+                return Column(
+                  children: summaryCards
+                );
+              } else {
+                return Row(
+                  children: summaryCards
+                      .map<Widget>((card) => Expanded(child: card))
+                      .intersperse(const Gap(16))
+                      .toList(),
+                );
+              }
+            },
+          ),
           const Gap(16),
           const Expanded(
             child: _TableView(),
@@ -51,10 +81,12 @@ class DashBoardPage extends StatelessWidget {
 class _TableView extends StatelessWidget {
   const _TableView();
 
-  Future<List<Inventory>> fetchInventories() async {
-    final QuerySnapshot snapshot =
-        await FirebaseFirestore.instance.collection('users').get();
-    return snapshot.docs.map((doc) => Inventory.fromFirestore(doc)).toList();
+  Future<List<UserModel>> fetchUsers() async {
+    final QuerySnapshot<Map<String, dynamic>> snapshot =
+        await FirebaseFirestore.instance.collection('Users').get();
+    final users = snapshot.docs.map((doc) => UserModel.fromSnapshot(doc)).toList();
+    print("Fetched ${users.length} users");
+    return users;
   }
 
   @override
@@ -67,8 +99,8 @@ class _TableView extends StatelessWidget {
       ),
     );
 
-    return FutureBuilder<List<Inventory>>(
-      future: fetchInventories(),
+    return FutureBuilder<List<UserModel>>(
+      future: fetchUsers(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());
@@ -78,19 +110,19 @@ class _TableView extends StatelessWidget {
           return const Center(child: Text('No data available'));
         }
 
-        final inventories = snapshot.data!;
+        final users = snapshot.data!;
 
         return Card(
           clipBehavior: Clip.antiAlias,
           child: TableView.builder(
-            columnCount: Inventory.itemCount,
-            rowCount: inventories.length + 1,
+            columnCount: 3,  // Adjusted to 3 columns: Email, Full Name, Phone
+            rowCount: users.length + 1,
             pinnedRowCount: 1,
             pinnedColumnCount: 1,
             columnBuilder: (index) {
               return TableSpan(
                 foregroundDecoration: index == 0 ? decoration : null,
-                extent: const FractionalTableSpanExtent(1 / 8),
+                extent: const FractionalTableSpanExtent(1 / 3),
               );
             },
             rowBuilder: (index) {
@@ -111,26 +143,20 @@ class _TableView extends StatelessWidget {
                     label = 'Full Name';
                     break;
                   case 2:
-                    label = 'Password';
-                    break;
-                  case 3:
                     label = 'Phone';
                     break;
                 }
               } else {
-                final inventory = inventories[vicinity.yIndex - 1];
+                final user = users[vicinity.yIndex - 1];
                 switch (vicinity.xIndex) {
                   case 0:
-                    label = inventory.email;
+                    label = user.email;
                     break;
                   case 1:
-                    label = inventory.fullName;
+                    label = user.fullName;
                     break;
                   case 2:
-                    label = inventory.password;
-                    break;
-                  case 3:
-                    label = inventory.phone;
+                    label = user.phoneNo;
                     break;
                 }
               }

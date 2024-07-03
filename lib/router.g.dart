@@ -24,6 +24,34 @@ RouteBase get $shellRouteData => StatefulShellRouteData.$route(
         StatefulShellBranchData.$branch(
           routes: [
             GoRouteData.$route(
+              path: '/trips',
+              factory: $TripsRouteExtension._fromState,
+              routes: [
+                GoRouteData.$route(
+                  path: ':tripId/edit',
+                  factory: $EditTripRouteExtension._fromState,
+                ),
+              ],
+            ),
+          ],
+        ),
+        StatefulShellBranchData.$branch(
+          routes: [
+            GoRouteData.$route(
+              path: '/routes',
+              factory: $RoutesRouteExtension._fromState,
+              routes: [
+                GoRouteData.$route(
+                  path: ':routeId/edit',
+                  factory: $EditRouteRouteExtension._fromState,
+                ),
+              ],
+            ),
+          ],
+        ),
+        StatefulShellBranchData.$branch(
+          routes: [
+            GoRouteData.$route(
               path: '/users',
               factory: $UsersPageRouteExtension._fromState,
               routes: [
@@ -49,6 +77,78 @@ extension $DashboardRouteExtension on DashboardRoute {
 
   String get location => GoRouteData.$location(
         '/',
+      );
+
+  void go(BuildContext context) => context.go(location);
+
+  Future<T?> push<T>(BuildContext context) => context.push<T>(location);
+
+  void pushReplacement(BuildContext context) =>
+      context.pushReplacement(location);
+
+  void replace(BuildContext context) => context.replace(location);
+}
+
+extension $TripsRouteExtension on TripsRoute {
+  static TripsRoute _fromState(GoRouterState state) => const TripsRoute();
+
+  String get location => GoRouteData.$location(
+        '/trips',
+      );
+
+  void go(BuildContext context) => context.go(location);
+
+  Future<T?> push<T>(BuildContext context) => context.push<T>(location);
+
+  void pushReplacement(BuildContext context) =>
+      context.pushReplacement(location);
+
+  void replace(BuildContext context) => context.replace(location);
+}
+
+extension $EditTripRouteExtension on EditTripRoute {
+  static EditTripRoute _fromState(GoRouterState state) => EditTripRoute(
+        tripId: state.pathParameters['tripId']!,
+      );
+
+  String get location => GoRouteData.$location(
+        '/trips/${Uri.encodeComponent(tripId)}/edit',
+      );
+
+  void go(BuildContext context) => context.go(location);
+
+  Future<T?> push<T>(BuildContext context) => context.push<T>(location);
+
+  void pushReplacement(BuildContext context) =>
+      context.pushReplacement(location);
+
+  void replace(BuildContext context) => context.replace(location);
+}
+
+extension $RoutesRouteExtension on RoutesRoute {
+  static RoutesRoute _fromState(GoRouterState state) => const RoutesRoute();
+
+  String get location => GoRouteData.$location(
+        '/routes',
+      );
+
+  void go(BuildContext context) => context.go(location);
+
+  Future<T?> push<T>(BuildContext context) => context.push<T>(location);
+
+  void pushReplacement(BuildContext context) =>
+      context.pushReplacement(location);
+
+  void replace(BuildContext context) => context.replace(location);
+}
+
+extension $EditRouteRouteExtension on EditRouteRoute {
+  static EditRouteRoute _fromState(GoRouterState state) => EditRouteRoute(
+        routeId: state.pathParameters['routeId']!,
+      );
+
+  String get location => GoRouteData.$location(
+        '/routes/${Uri.encodeComponent(routeId)}/edit',
       );
 
   void go(BuildContext context) => context.go(location);

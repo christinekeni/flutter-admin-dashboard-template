@@ -19,7 +19,7 @@ class NavigationTitle extends StatelessWidget {
           child: GestureDetector(
             onTap: () => context.go(routerInitialLocation),
             child: Text(
-              'Flutter Admin Dashboard',
+              'StrathMover',
               style: theme.textTheme.bodyLarge!.copyWith(
                 fontWeight: FontWeight.w700,
               ),
